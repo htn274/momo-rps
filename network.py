@@ -16,10 +16,16 @@ class Network:
     def connect(self, pname):
         try:
             self.client.connect(self.addr)
+            print('Send pname to server')
             self.client.send(str.encode(pname))
             return pickle.loads(self.client.recv(2048*2))
-        except:
-            pass
+        except Exception as e:
+            # Just print(e) is cleaner and more likely what you want,
+            # but if you insist on printing message specifically whenever possible...
+            if hasattr(e, 'message'):
+                print(e.message)
+            else:
+                print(e)
 
     def send(self, data):
         try:

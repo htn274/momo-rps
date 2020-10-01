@@ -64,10 +64,11 @@ def findGame():
     return None
 
 def create_player(conn, pid):
+    global games, players
     pname = conn.recv(4096).decode()
-    print(pname)
+    print('Get pname = ', pname)
     player = Player(pid, pname)
-    print(player)
+    print('Create new player: ', player)
     conn.sendall(pickle.dumps(player))
     players.append(player)
 

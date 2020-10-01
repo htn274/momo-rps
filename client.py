@@ -19,7 +19,7 @@ def redrawWindow(win, game, p):
         win.blit(text, (width/2 - text.get_width()/2, height/2 - text.get_height()/2))
     else:
         font = pygame.font.SysFont("comicsans", 60)
-        text = font.render(p.name, 1, (0, 255,255))
+        text = font.render("You", 1, (0, 255,255))
         win.blit(text, (80, 200))
 
         text = font.render("Opponents", 1, (0, 255, 255))
@@ -63,9 +63,6 @@ def main():
     run = True
     clock = pygame.time.Clock()
     n = Network(uname)
-
-    # print('Send {} to server'.format(uname))
-    # n.send(uname)
 
     player = n.getP()
     
@@ -111,7 +108,7 @@ def main():
                 pos = pygame.mouse.get_pos()
                 for btn in btns:
                     if btn.click(pos) and game.connected():
-                        if player == 0:
+                        if player.id == game.player1.id:
                             if not game.player1.playerWent:
                                 n.send(btn.text)
                         else:
