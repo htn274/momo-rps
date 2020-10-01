@@ -1,4 +1,5 @@
 import pygame
+import math
 from UI import Button, InputBox, Color
 from network import Network
 import pickle
@@ -16,37 +17,34 @@ uname = ''
 #     topPlayer.append(['Player' + str(i), str(i)])
 
 def draw10PlayerBoard(win, scoreBoard):
-    print("lent board", len(scoreBoard))
     for i in range(len(scoreBoard)):
-        print(i)
         font = pygame.font.SysFont("comicsans", 30)
         text_name = font.render(scoreBoard[i][0], 1, (255,255,255))
         font = pygame.font.SysFont("comicsans", 30)
         text_score = font.render(scoreBoard[i][1], 1, (255,255,255))
-        win.blit(text_name, (250, 200 + (30*i)))
-        win.blit(text_score, (350, 200 + (30*i)))
+        win.blit(text_name, (round(0.4*width), round(0.2*height) + (30*i)))
+        win.blit(text_score, (round(0.4*width)+100, round(0.2*height) + (30*i)))
         pygame.display.update()
         
 def drawLeaderBoard(win, topPlayer):
     # Rangkings Chart
     run = True
     clock = pygame.time.Clock()
-    print("len top", len(topPlayer))
     numPage = math.ceil(len(topPlayer)/10)
-    print("numpage", numPage)
     page = 0
     clock.tick(60)
 
     while run:
-        font = pygame.font.SysFont("comicsans", 30)
-        text_BXH = font.render("Rankings Chart", 1, (255, 255, 255))
+        font = pygame.font.SysFont("comicsans", 40)
+        text_BXH = font.render("LEADER BOARD", 1, (255, 255, 255))
+        win.blit(text_BXH, (round(0.35*width), round(0.1*height)))
 
-        win.blit(text_BXH, (100,50))
-
-        buttonBefore = Button("Before", 300, 50, (255,0,0), 50, 20)
-        buttonAfter = Button("After", 360, 50, (255, 0, 0), 50, 20)
-        buttonBefore.draw(win, 20)
-        buttonAfter.draw(win, 20)
+        buttonBefore = Button("<<<", round(0.35*width), round(0.65*height), (255,0,0), 50, 30)
+        buttonAfter = Button(">>>", round(0.45*width), round(0.65*height), (255, 0, 0), 50, 30)
+        buttonBack = Button("Back", round(0.55*width), round(0.65*height), (255, 0, 0), 60, 30)
+        buttonBefore.draw(win, 30)
+        buttonAfter.draw(win, 30)
+        buttonBack.draw(win, 30)
         draw10PlayerBoard(win, topPlayer[page*10: (page+1)*10])   
         pygame.display.update()
         pygame.display.flip()
@@ -62,8 +60,8 @@ def drawLeaderBoard(win, topPlayer):
                 elif buttonAfter.click(event.pos) == True and page < numPage-1:
                     page = page + 1
                     win.fill((30, 30, 30))
-
-
+                elif buttonBack.click(event.pos) == True:
+                    continue
 
 def redrawWindow(win, game, p):
     win.fill((30,30,30))
@@ -205,4 +203,5 @@ def menu_screen():
     main()
 
 while True:
+    # drawLeaderBoard(win, topPlayer)
     menu_screen()
