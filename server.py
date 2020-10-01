@@ -3,6 +3,7 @@ from _thread import *
 import pickle
 from game import Game
 from player import Player
+import threading
 
 server = "localhost"
 port = 5555
@@ -22,9 +23,13 @@ games = {}
 idCount = 0
 players = []
 pid = 0
-
+count_lock = threading.Lock()
+barrier = threading.Lock()
+barrier.acquire()
+count = 0
+print_lock = threading.Lock()
 def start_game(conn, p, gameId):
-    global idCount
+    global idCount, count
 
     while True:
         try:
@@ -36,17 +41,25 @@ def start_game(conn, p, gameId):
                 if not data:
                     break
                 else:
-                    if data == "reset":
+                    if data == 'get':
+                        conn.sendall(pickle.dumps(game))
+                        continue
+                    elif data == 'lost':
+                        pass
+                    elif data == "reset":
                         game.resetWent()
+                    elif data == "win":
+                        with print_lock:
+                            p.gamePoints += 1
+                            print('updated point for player', p.id)
                     elif data != "get":
-                        print('Player {}: {}'.format(p.name, data))
                         game.play(p, data)
 
                     conn.sendall(pickle.dumps(game))
-
             else:
                 break
-        except:
+        except Exception as ex:
+            print(ex)
             break
 
     print("Lost connection")

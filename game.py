@@ -9,12 +9,14 @@ class Game:
         self.moves = [None, None] #{player1: None, player2: None}
         self.wins = [0,0]
         self.ties = 0
+        self.num_players = 1
 
     #check in server.py
     def addPlayer2(self, player2):
         if self.player2 == None:
             self.player2 = player2
             self.ready = True
+            self.num_players += 1
             return True
         return False
 
