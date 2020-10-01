@@ -5,6 +5,10 @@ COLOR_INACTIVE = pg.Color('lightskyblue3')
 COLOR_ACTIVE = pg.Color('dodgerblue2')
 FONT = pg.font.Font(None, 32)
 
+class Color:
+    background = (30, 30, 30)
+    black = (0, 0, 0)
+    white = (255, 255, 255)
 class InputBox:
 
     def __init__(self, x, y, w, h, text=''):
