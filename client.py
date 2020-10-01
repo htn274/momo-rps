@@ -1,4 +1,5 @@
 import pygame
+from UI import Button, InputBox
 from network import Network
 import pickle
 pygame.font.init()
@@ -7,30 +8,6 @@ width = 700
 height = 700
 win = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Client")
-
-
-class Button:
-    def __init__(self, text, x, y, color):
-        self.text = text
-        self.x = x
-        self.y = y
-        self.color = color
-        self.width = 150
-        self.height = 100
-
-    def draw(self, win):
-        pygame.draw.rect(win, self.color, (self.x, self.y, self.width, self.height))
-        font = pygame.font.SysFont("comicsans", 40)
-        text = font.render(self.text, 1, (255,255,255))
-        win.blit(text, (self.x + round(self.width/2) - round(text.get_width()/2), self.y + round(self.height/2) - round(text.get_height()/2)))
-
-    def click(self, pos):
-        x1 = pos[0]
-        y1 = pos[1]
-        if self.x <= x1 <= self.x + self.width and self.y <= y1 <= self.y + self.height:
-            return True
-        else:
-            return False
 
 
 def redrawWindow(win, game, p):
@@ -141,21 +118,63 @@ def main():
 def menu_screen():
     run = True
     clock = pygame.time.Clock()
-
+    font = pygame.font.SysFont("comicsans", 60)
+    text_title = font.render("Rock Paper Scissors Game", 1, (255,0,0))
+    font = pygame.font.SysFont("comicsans", 30)
+    text_enter = font.render("Enter your name:", 1, (255,255,255))
+    btn_join = Button("Play game", 150, 450, (255,0,0), 300, 80)
+    ib_name = InputBox(100, 350, 140, 32)
     while run:
-        clock.tick(60)
-        win.fill((128, 128, 128))
-        font = pygame.font.SysFont("comicsans", 60)
-        text = font.render("Click to Play!", 1, (255,0,0))
-        win.blit(text, (100,200))
-        pygame.display.update()
-
+        win.fill((30, 30, 30))
+        win.blit(text_title, (80,200))
+        win.blit(text_enter, (100,300))
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 run = False
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                run = False
+            ib_name.handle_event(event)
+        ib_name.update()
+        ib_name.draw(win)
+        btn_join.draw(win)
+        pygame.display.flip()
+        clock.tick(30)
+
+    # input_box1 = InputBox(100, 100, 140, 32)
+    # input_box2 = InputBox(100, 300, 140, 32)
+    # input_boxes = [input_box1, input_box2]
+    # done = False
+
+    # while not done:
+    #     for event in pygame.event.get():
+    #         if event.type == pygame.QUIT:
+    #             done = True
+    #         for box in input_boxes:
+    #             box.handle_event(event)
+
+    #     for box in input_boxes:
+    #         box.update()
+
+    #     win.fill((30, 30, 30))
+    #     for box in input_boxes:
+    #         box.draw(win)
+
+    #     pygame.display.flip()
+    #     clock.tick(30)
+
+    # while run:
+    #     clock.tick(60)
+    #     win.fill((128, 128, 128))
+    #     font = pygame.font.SysFont("comicsans", 60)
+    #     text = font.render("Click to Play!", 1, (255,0,0))
+    #     win.blit(text, (100,200))
+    #     pygame.display.update()
+
+    #     for event in pygame.event.get():
+    #         if event.type == pygame.QUIT:
+    #             pygame.quit()
+    #             run = False
+    #         if event.type == pygame.MOUSEBUTTONDOWN:
+    #             run = False
 
     main()
 
