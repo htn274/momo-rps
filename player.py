@@ -7,4 +7,9 @@ class Player:
         self.gamePoints = 0
         self.status = True
         self.playerWent = False
+    def __str__(self):
+        return str(self.id) + ' ' + self.name
         
+
+if __name__ == '__main__':
+    p = Player(1, 'n1')

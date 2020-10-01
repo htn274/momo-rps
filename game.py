@@ -46,17 +46,17 @@ class Game:
 
         winner = -1
         if p1 == "R" and p2 == "S":
-            winner = 0
+            winner = self.player1.id
         elif p1 == "S" and p2 == "R":
-            winner = 1
+            winner = self.player2.id
         elif p1 == "P" and p2 == "R":
-            winner = 0
+            winner = self.player1.id
         elif p1 == "R" and p2 == "P":
-            winner = 1
+            winner = self.player2.id
         elif p1 == "S" and p2 == "P":
-            winner = 0
+            winner = self.player1.id
         elif p1 == "P" and p2 == "S":
-            winner = 1
+            winner = self.player2.id
 
         return winner
 
