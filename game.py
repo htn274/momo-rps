@@ -1,12 +1,22 @@
+from player import Player
+
 class Game:
-    def __init__(self, id):
-        self.p1Went = False
-        self.p2Went = False
+    def __init__(self, id, player1, player2 = None):
+        self.player1 = player1
+        self.player2 = player2
         self.ready = False
         self.id = id
-        self.moves = [None, None]
+        self.moves = [None, None] #{player1: None, player2: None}
         self.wins = [0,0]
         self.ties = 0
+
+    #check in server.py
+    def addPlayer2(self, player2):
+        if self.player2 == None:
+            self.player2 = player2
+            self.ready = True
+            return True
+        return False
 
     def get_player_move(self, p):
         """
@@ -16,17 +26,18 @@ class Game:
         return self.moves[p]
 
     def play(self, player, move):
-        self.moves[player] = move
-        if player == 0:
-            self.p1Went = True
+        if player.id == self.player1.id:
+            self.moves[0] = move
+            self.player1.playerWent = True
         else:
-            self.p2Went = True
+            self.moves[1] = move
+            self.player2.playerWent = True
 
     def connected(self):
         return self.ready
 
     def bothWent(self):
-        return self.p1Went and self.p2Went
+        return self.player1.playerWent and self.player2.playerWent
 
     def winner(self):
 
@@ -50,5 +61,16 @@ class Game:
         return winner
 
     def resetWent(self):
-        self.p1Went = False
-        self.p2Went = False
+        self.player1.playerWent = False
+        self.player2.playerWent = False
+
+if __name__ == '__main__':
+    p1 = Player(1, 'n1')
+    game = Game(1, p1)
+    print(game.ready)
+    p2 = Player(2, 'n2')
+    print(game.addPlayer2(p2))
+    # Play
+    game.play(p1, 'S')
+    game.play(p2, 'R')
+    print(game.winner())
