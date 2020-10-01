@@ -132,49 +132,18 @@ def menu_screen():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 run = False
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                if btn_join.click(pos):
+                    run = False
             ib_name.handle_event(event)
         ib_name.update()
         ib_name.draw(win)
         btn_join.draw(win)
         pygame.display.flip()
+
+        
         clock.tick(30)
-
-    # input_box1 = InputBox(100, 100, 140, 32)
-    # input_box2 = InputBox(100, 300, 140, 32)
-    # input_boxes = [input_box1, input_box2]
-    # done = False
-
-    # while not done:
-    #     for event in pygame.event.get():
-    #         if event.type == pygame.QUIT:
-    #             done = True
-    #         for box in input_boxes:
-    #             box.handle_event(event)
-
-    #     for box in input_boxes:
-    #         box.update()
-
-    #     win.fill((30, 30, 30))
-    #     for box in input_boxes:
-    #         box.draw(win)
-
-    #     pygame.display.flip()
-    #     clock.tick(30)
-
-    # while run:
-    #     clock.tick(60)
-    #     win.fill((128, 128, 128))
-    #     font = pygame.font.SysFont("comicsans", 60)
-    #     text = font.render("Click to Play!", 1, (255,0,0))
-    #     win.blit(text, (100,200))
-    #     pygame.display.update()
-
-    #     for event in pygame.event.get():
-    #         if event.type == pygame.QUIT:
-    #             pygame.quit()
-    #             run = False
-    #         if event.type == pygame.MOUSEBUTTONDOWN:
-    #             run = False
 
     main()
 
