@@ -1,5 +1,5 @@
 class Game:
-    def __init__(self, id):
+    def __init__(self, id,player1):
         self.p1Went = False
         self.p2Went = False
         self.ready = False
@@ -7,7 +7,9 @@ class Game:
         self.moves = [None, None]
         self.wins = [0,0]
         self.ties = 0
-
+        self.player1 = player1
+    def addPlayer(self,player2):
+        self.player2 = player2
     def get_player_move(self, p):
         """
         :param p: [0,1]
@@ -17,7 +19,7 @@ class Game:
 
     def play(self, player, move):
         self.moves[player] = move
-        if player == 0:
+        if player == player1:
             self.p1Went = True
         else:
             self.p2Went = True
@@ -35,17 +37,17 @@ class Game:
 
         winner = -1
         if p1 == "R" and p2 == "S":
-            winner = 0
+            winner = player1
         elif p1 == "S" and p2 == "R":
-            winner = 1
+            winner = player2
         elif p1 == "P" and p2 == "R":
-            winner = 0
+            winner = player1
         elif p1 == "R" and p2 == "P":
-            winner = 1
+            winner = player2
         elif p1 == "S" and p2 == "P":
-            winner = 0
+            winner = player1
         elif p1 == "P" and p2 == "S":
-            winner = 1
+            winner = player2
 
         return winner
 
