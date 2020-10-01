@@ -71,12 +71,21 @@ def redrawWindow(win, game, p):
         text = font.render("Waiting for Player...", 1, (255,0,0), True)
         win.blit(text, (width/2 - text.get_width()/2, height/2 - text.get_height()/2))
     else:
+        player = p
+        # print('Current score', (game.player1 if player.id == game.player1.id else game.player2).gamePoints)
+        # print('Opponent score', (game.player2 if player.id == game.player1.id else game.player1).gamePoints)
         font = pygame.font.SysFont("comicsans", 60)
-        text = font.render("You", 1, (0, 255,255))
-        win.blit(text, (80, 200))
+        p = game.player1 if player.id == game.player1.id else game.player2
+        text_name = font.render(p.name, 1, (0, 255,255))
+        text_score = font.render(str(p.gamePoints), 1, (0, 255, 255))
+        win.blit(text_name, (80, 200))
+        win.blit(text_score, (80, 250))
 
-        text = font.render("Opponents", 1, (0, 255, 255))
-        win.blit(text, (380, 200))
+        opponent = game.player2 if game.player1.id == p.id else game.player1
+        text_name = font.render(opponent.name, 1, (0, 255,255))
+        text_score = font.render(str(opponent.gamePoints), 1, (0, 255, 255))
+        win.blit(text_name, (400, 200))
+        win.blit(text_score, (400, 250))
 
         move1 = game.get_player_move(0)
         move2 = game.get_player_move(1)
@@ -124,28 +133,32 @@ def main():
         clock.tick(60)
         try:
             game = n.send("get")
+            assert game is not None
         except:
             run = False
             print("Couldn't get game")
             break
 
         if game.bothWent():
-            redrawWindow(win, game, player)
+            # redrawWindow(win, game, player)
             pygame.time.delay(500)
             try:
                 game = n.send("reset")
-            except:
+            except Exception as ex:
                 run = False
-                print("Couldn't get game")
+                print("Couldn't get game", ex)
                 break
-
             font = pygame.font.SysFont("comicsans", 90)
             if (game.winner() == player.id):
                 text = font.render("You Won!", 1, (255,0,0))
+                game = n.send('win')
+                print('Get game state from server for player', player.id, 'after winning with new score', (game.player1 if player.id == game.player1.id else game.player2).gamePoints)
             elif game.winner() == -1:
                 text = font.render("Tie Game!", 1, (255,0,0))
             else:
                 text = font.render("You Lost...", 1, (255, 0, 0))
+                game = n.send('lost')
+                print('Get game state from server')
 
             win.blit(text, (width/2 - text.get_width()/2, height/2 - text.get_height()/2))
             pygame.display.update()
@@ -162,10 +175,10 @@ def main():
                     if btn.click(pos) and game.connected():
                         if player.id == game.player1.id:
                             if not game.player1.playerWent:
-                                n.send(btn.text)
+                                game = n.send(btn.text)
                         else:
                             if not game.player2.playerWent:
-                                n.send(btn.text)
+                                game = n.send(btn.text)
 
         redrawWindow(win, game, player)
 
