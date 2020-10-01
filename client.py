@@ -1,5 +1,5 @@
 import pygame
-from UI import Button, InputBox
+from UI import Button, InputBox, Color
 from network import Network
 import pickle
 pygame.font.init()
@@ -8,13 +8,13 @@ width = 700
 height = 700
 win = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Client")
-
+uname = ''
 
 def redrawWindow(win, game, p):
-    win.fill((128,128,128))
+    win.fill((30,30,30))
 
     if not(game.connected()):
-        font = pygame.font.SysFont("comicsans", 80)
+        font = pygame.font.SysFont("comicsans", 60)
         text = font.render("Waiting for Player...", 1, (255,0,0), True)
         win.blit(text, (width/2 - text.get_width()/2, height/2 - text.get_height()/2))
     else:
@@ -28,22 +28,22 @@ def redrawWindow(win, game, p):
         move1 = game.get_player_move(0)
         move2 = game.get_player_move(1)
         if game.bothWent():
-            text1 = font.render(move1, 1, (0,0,0))
-            text2 = font.render(move2, 1, (0, 0, 0))
+            text1 = font.render(move1, 1, Color.white)
+            text2 = font.render(move2, 1,  Color.white)
         else:
             if game.p1Went and p == 0:
-                text1 = font.render(move1, 1, (0,0,0))
+                text1 = font.render(move1, 1,  Color.white)
             elif game.p1Went:
-                text1 = font.render("Locked In", 1, (0, 0, 0))
+                text1 = font.render("Locked In", 1, Color.white)
             else:
-                text1 = font.render("Waiting...", 1, (0, 0, 0))
+                text1 = font.render("Waiting...", 1,  Color.white)
 
             if game.p2Went and p == 1:
-                text2 = font.render(move2, 1, (0,0,0))
+                text2 = font.render(move2, 1,  Color.white)
             elif game.p2Went:
-                text2 = font.render("Locked In", 1, (0, 0, 0))
+                text2 = font.render("Locked In", 1,  Color.white)
             else:
-                text2 = font.render("Waiting...", 1, (0, 0, 0))
+                text2 = font.render("Waiting...", 1,  Color.white)
 
         if p == 1:
             win.blit(text2, (100, 350))
@@ -63,9 +63,13 @@ def main():
     run = True
     clock = pygame.time.Clock()
     n = Network()
+
+    # print('Send {} to server'.format(uname))
+    # n.send(uname)
+
     player = int(n.getP())
     print("You are player", player)
-
+    
     while run:
         clock.tick(60)
         try:
@@ -116,6 +120,7 @@ def main():
         redrawWindow(win, game, player)
 
 def menu_screen():
+    global uname
     run = True
     clock = pygame.time.Clock()
     font = pygame.font.SysFont("comicsans", 60)
@@ -144,7 +149,8 @@ def menu_screen():
 
         
         clock.tick(30)
-
+    uname = ib_name.text
+   
     main()
 
 while True:
