@@ -135,17 +135,24 @@ def main():
         clock.tick(60)
         try:
             game = n.send("get")
-            assert game is not None
+            print('Receive:', type(game))
+            if isinstance(game, str):
+                print('Update for new game')
+                break
         except:
             run = False
             print("Couldn't get game")
             break
-
+        
         if game.bothWent():
             # redrawWindow(win, game, player)
             pygame.time.delay(500)
             try:
                 game = n.send("reset")
+                print('Receive : ', type(game))
+                if isinstance(game, str):
+                    print('Update for new game')
+                    break
             except Exception as ex:
                 run = False
                 print("Couldn't get game", ex)
@@ -153,18 +160,22 @@ def main():
             font = pygame.font.SysFont("comicsans", 90)
             if (game.winner() == player.id):
                 text = font.render("You Won!", 1, (255,0,0))
-                game = n.send('win')
+                game = n.send("win")
                 print('Get game state from server for player', player.id, 'after winning with new score', (game.player1 if player.id == game.player1.id else game.player2).gamePoints)
             elif game.winner() == -1:
                 text = font.render("Tie Game!", 1, (255,0,0))
             else:
                 text = font.render("You Lost...", 1, (255, 0, 0))
-                game = n.send('lost')
                 print('Get game state from server')
 
             win.blit(text, (width/2 - text.get_width()/2, height/2 - text.get_height()/2))
             pygame.display.update()
-            pygame.time.delay(2000)
+            pygame.time.delay(1000)
+
+        if game.finished():
+            redrawWindow(win, game, player)
+            print('Ecec, you', game.get_result(player))
+            break
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:

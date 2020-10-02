@@ -6,7 +6,7 @@ class Game:
         self.player2 = player2
         self.ready = False
         self.id = id
-        self.moves = [None, None] #{player1: None, player2: None}
+        self.moves = [[], []] #{player1: None, player2: None}
         self.wins = [0,0]
         self.ties = 0
         self.num_players = 1
@@ -22,17 +22,31 @@ class Game:
 
     def get_player_move(self, p):
         """
-        :param p: [0,1]
+        :param p: [0, 1]
         :return: Move
         """
-        return self.moves[p]
+        if self.moves[p]:
+            return self.moves[p][-1]
+        return None
+
+    def finished(self):
+        return len(self.moves[0]) == len(self.moves[1]) == 3
+
+    def get_result(self, p):
+        print('Game points', self.player1.gamePoints, self.player2.gamePoints)
+        if self.player1.gamePoints == self.player2.gamePoints:
+            return 'TIE ' + str(p.gamePoints)
+        if p.id == self.player1.id:
+            return 'WIN ' + str(p.gamePoints) if self.player1.gamePoints > self.player2.gamePoints else 'LOST'
+        else:
+            return 'LOST ' + str(p.gamePoints)  if self.player1.gamePoints > self.player2.gamePoints else 'WIN'
 
     def play(self, player, move):
         if player.id == self.player1.id:
-            self.moves[0] = move
+            self.moves[0].append(move)
             self.player1.playerWent = True
         else:
-            self.moves[1] = move
+            self.moves[1].append(move)
             self.player2.playerWent = True
 
     def connected(self):
@@ -43,8 +57,8 @@ class Game:
 
     def winner(self):
 
-        p1 = self.moves[0].upper()[0]
-        p2 = self.moves[1].upper()[0]
+        p1 = self.moves[0][-1].upper()[0]
+        p2 = self.moves[1][-1].upper()[0]
 
         winner = -1
         if p1 == "R" and p2 == "S":

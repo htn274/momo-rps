@@ -30,7 +30,13 @@ class Network:
     def send(self, data):
         try:
             self.client.send(str.encode(data))
-            return pickle.loads(self.client.recv(2048*2))
+            print('Send {} to server'.format(data))
+            mess = self.client.recv(4096).decode()
+            print('Receive {} from server'.format(mess))
+            if mess == 'game':   
+                self.client.send(str.encode(data))
+                return pickle.loads(self.client.recv(2048*2))
+            return mess
         except socket.error as e:
             print(e)
 

@@ -21,40 +21,53 @@ print("Waiting for a connection, Server Started")
 connected = set()
 games = {}
 idCount = 0
-players = []
+players = {}
 pid = 0
 count_lock = threading.Lock()
 barrier = threading.Lock()
 barrier.acquire()
 count = 0
 print_lock = threading.Lock()
+turn = 2
 def start_game(conn, p, gameId):
-    global idCount, count
+    global idCount, count, turn
 
     while True:
         try:
             data = conn.recv(4096).decode()
-
+            print('Get {} from {}'.format(data, p.name))
             if gameId in games:
                 game = games[gameId]
 
                 if not data:
                     break
                 else:
-                    if data == 'get':
-                        conn.sendall(pickle.dumps(game))
-                        continue
-                    elif data == 'lost':
-                        pass
-                    elif data == "reset":
+                    if data == "reset":
                         game.resetWent()
+                        # with count_lock:
+                        #     turn -= 1
+                        #     print(p.name, turn)
+                        #     if turn == 0:
+                        #         if games[gameId].player1.gamePoints > games[gameId].player2.gamePoints:
+                        #             games[gameId].player1.totalPoints += 3
+                        #         else:
+                        #             games[gameId].player2.totalPoints += 3
+
+                        #         if p.gamePoints > min(games[gameId].player1.gamePoints, games[gameId].player2.gamePoints):
+                        #             mess = 'WON ' + str(p.totalPoints)
+                        #         else:
+                        #             mess = 'LOST ' + str(p.totalPoints)
+                        #         conn.sendall(str.encode(mess))
+                        #         break
                     elif data == "win":
-                        with print_lock:
-                            p.gamePoints += 1
-                            print('updated point for player', p.id)
+                        p.gamePoints += 1
                     elif data != "get":
                         game.play(p, data)
 
+                    print('Send game to ', p.name)
+                    conn.sendall(str.encode('game', 'utf-8'))
+                    conn.recv(4096).decode()
+                    print('Send Game Object to ', p.name)
                     conn.sendall(pickle.dumps(game))
             else:
                 break
@@ -62,7 +75,7 @@ def start_game(conn, p, gameId):
             print(ex)
             break
 
-    print("Lost connection")
+    
     try:
         del games[gameId]
         print("Closing Game", gameId)
@@ -77,31 +90,33 @@ def findGame():
     return None
 
 def create_player(conn, pid):
-    global games, players
+    global games, players, idCount
     pname = conn.recv(4096).decode()
     print('Get pname = ', pname)
     player = Player(pid, pname)
     print('Create new player: ', player)
     conn.sendall(pickle.dumps(player))
-    players.append(player)
+    players[pid]= player
 
-    gameId = findGame()
-    if gameId == None:
-        gameId = (idCount - 1)//2
-        games[gameId] = Game(gameId, player)
-        print("Creating a new game...", gameId)
-    else:
-        games[gameId].addPlayer2(player)
-        games[gameId].ready = True
-        print("Start a game...", gameId)
-    
-    start_game(conn, player, gameId)
+    while True:
+        idCount += 1
+        gameId = findGame()
+        if gameId == None:
+            gameId = (idCount - 1)//2
+            games[gameId] = Game(gameId, player)
+            print("Creating a new game...", gameId)
+        else:
+            games[gameId].addPlayer2(player)
+            games[gameId].ready = True
+            print("Start a game...", gameId)
+        
+        start_game(conn, player, gameId)
+        break
 
     conn.close()
 
 while True:
     conn, addr = s.accept()
     print("Connected to:", addr)
-    idCount += 1
     pid += 1
     start_new_thread(create_player, (conn, pid))
