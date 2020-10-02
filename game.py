@@ -37,9 +37,11 @@ class Game:
         if self.player1.gamePoints == self.player2.gamePoints:
             return 'TIE ' + str(p.gamePoints)
         if p.id == self.player1.id:
-            return 'WIN ' + str(p.gamePoints) if self.player1.gamePoints > self.player2.gamePoints else 'LOST'
+            self.player1.totalPoints += 3
+            return 'WIN ' + str(self.player1.totalPoints) if self.player1.gamePoints > self.player2.gamePoints else 'LOST'
         else:
-            return 'LOST ' + str(p.gamePoints)  if self.player1.gamePoints > self.player2.gamePoints else 'WIN'
+            self.player2.totalPoints += 3
+            return 'LOST ' + str(self.player1.totalPoints)  if self.player1.gamePoints > self.player2.gamePoints else 'WIN'
 
     def play(self, player, move):
         if player.id == self.player1.id:

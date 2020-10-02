@@ -77,7 +77,7 @@ def drawWinLost(win, res, score):
 
     # two button
     buttonBXH = Button("Leader Board", round(0.25*width), round(0.65*height), (255,0,0), 150, 40)
-    buttonBack = Button("Back", round(0.55*width), round(0.65*height), (255, 0, 0), 150, 40)
+    buttonBack = Button("Play again", round(0.55*width), round(0.65*height), (255, 0, 0), 150, 40)
     buttonBXH.draw(win, 30)
     buttonBack.draw(win, 30)
 
@@ -202,8 +202,11 @@ def main():
             pygame.time.delay(1000)
 
         if game.finished():
-            redrawWindow(win, game, player)
-            print('Ecec, you', game.get_result(player))
+            res, score = game.get_result(player).split()
+            print('Ecec, you', res, score)
+            n.send('finish')
+            while True:
+                drawWinLost(win, res, score)
             break
 
         for event in pygame.event.get():
@@ -258,5 +261,5 @@ def menu_screen():
     main()
 
 while True:
-    drawWinLost(win, "lost", 0)
-    # menu_screen()
+    # drawWinLost(win, "lost", 0)
+    menu_screen()

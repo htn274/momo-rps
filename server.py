@@ -39,26 +39,12 @@ def start_game(conn, p, gameId):
             if gameId in games:
                 game = games[gameId]
 
-                if not data:
+                if not data or data == 'finish':
+                    conn.sendall(str.encode('abc'))
                     break
                 else:
                     if data == "reset":
                         game.resetWent()
-                        # with count_lock:
-                        #     turn -= 1
-                        #     print(p.name, turn)
-                        #     if turn == 0:
-                        #         if games[gameId].player1.gamePoints > games[gameId].player2.gamePoints:
-                        #             games[gameId].player1.totalPoints += 3
-                        #         else:
-                        #             games[gameId].player2.totalPoints += 3
-
-                        #         if p.gamePoints > min(games[gameId].player1.gamePoints, games[gameId].player2.gamePoints):
-                        #             mess = 'WON ' + str(p.totalPoints)
-                        #         else:
-                        #             mess = 'LOST ' + str(p.totalPoints)
-                        #         conn.sendall(str.encode(mess))
-                        #         break
                     elif data == "win":
                         p.gamePoints += 1
                     elif data != "get":
