@@ -204,7 +204,7 @@ def main():
         if game.finished():
             res, score = game.get_result(player).split()
             print('Ecec, you', res, score)
-            n.send('finish')
+            # n.send('finish')
             while True:
                 drawWinLost(win, res, score)
             break
