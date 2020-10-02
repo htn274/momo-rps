@@ -63,6 +63,37 @@ def drawLeaderBoard(win, topPlayer):
                 elif buttonBack.click(event.pos) == True:
                     continue
 
+def drawWinLost(win, res, score):
+    win.fill((30, 30, 30))
+    #You won
+    text_Res = "You " + res
+    font = pygame.font.SysFont("comicsans", 70)
+    text_BXH = font.render(text_Res, 1, (255, 255, 255))
+    win.blit(text_BXH, (round(0.5*width) - round(text_BXH.get_width()/2), round(0.2*height)))
+    #Score
+    font = pygame.font.SysFont("comicsans", 150)
+    text_Score = font.render(str(score), 1, (255, 255, 255))
+    win.blit(text_Score, (round(0.5*width) - round(text_Score.get_width()/2), round(0.35*height)))
+
+    # two button
+    buttonBXH = Button("Leader Board", round(0.25*width), round(0.65*height), (255,0,0), 150, 40)
+    buttonBack = Button("Back", round(0.55*width), round(0.65*height), (255, 0, 0), 150, 40)
+    buttonBXH.draw(win, 30)
+    buttonBack.draw(win, 30)
+
+    pygame.display.update()
+    pygame.display.flip()
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if buttonBXH.click(event.pos) == True:
+                pass
+            elif buttonBack.click(event.pos) == True:
+                pass
+
 def redrawWindow(win, game, p):
     win.fill((30,30,30))
 
@@ -216,5 +247,5 @@ def menu_screen():
     main()
 
 while True:
-    # drawLeaderBoard(win, topPlayer)
-    menu_screen()
+    drawWinLost(win, "lost", 0)
+    # menu_screen()
