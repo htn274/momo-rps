@@ -21,12 +21,13 @@ parser.add_argument('--camera', const=None, type=str,
 
 camera = None
 width = 750
-height = 750
+height = 1000
 win = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Client")
 screen = pygame.Surface((300, 300))
 uname = ''
 choose = ''
+predict_sign = ''
 model = tf.keras.models.load_model('Model_4_classes.h5')
 class_name = ['Nothing', 'Paper', 'Rock', 'Scissors']
 
@@ -127,7 +128,7 @@ def predict(raw_img):
     return class_name[idx]
 
 def redrawWindow(win, game, p):
-    global screen, choose
+    global screen, predict_sign
     win.fill((30,30,30))
 
     if not(game.connected()):
@@ -143,17 +144,17 @@ def redrawWindow(win, game, p):
         text_title = font.render(str("You"), 1, (0, 255, 255))
         text_name = font.render(p.name, 1, (0, 255,255))
         text_score = font.render(str(p.gamePoints), 1, (0, 255, 255))
-        win.blit(text_title, (80, 150))
-        win.blit(text_name, (80, 200))
-        win.blit(text_score, (80, 250))
+        win.blit(text_title, (80, 100))
+        win.blit(text_name, (80, 150))
+        win.blit(text_score, (80, 200))
 
         opponent = game.player2 if game.player1.id == p.id else game.player1
         text_title = font.render("Opponent", 1, (0, 255, 255))
         text_name = font.render(opponent.name, 1, (0, 255,255))
         text_score = font.render(str(opponent.gamePoints), 1, (0, 255, 255))
-        win.blit(text_title, (400, 150))
-        win.blit(text_name, (400, 200))
-        win.blit(text_score, (400, 250))
+        win.blit(text_title, (400, 100))
+        win.blit(text_name, (400, 150))
+        win.blit(text_score, (400, 200))
 
         move1 = game.get_player_move(0)
         move2 = game.get_player_move(1)
@@ -194,17 +195,18 @@ def redrawWindow(win, game, p):
         frame = cv2.resize(frame, (300, 300), interpolation=cv2.INTER_AREA)
         frame = cv2.flip(frame, 1)
         # frame = frame.swapaxes(0, 1)
-        choose = predict(frame)
+        predict_sign = predict(frame)
         # print('Frame: ', type(frame), frame.dtype)
-        print('Choose: ', choose)
         img = cv2.UMat(frame)
-        cv2.putText(img, choose, (10, 30),
+        cv2.putText(img, predict_sign, (10, 30),
                     cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
         img = cv2.UMat.get(img)
         img = img.swapaxes(0, 1)
         pygame.surfarray.blit_array(screen, img)
         win.blit(screen, (50, 400))
         # pygame.surfarray.blit_array(screen, frame)
+        if choose == '':
+            btn_submit.draw(win)
         pygame.display.flip()
 
     pygame.display.update()
@@ -213,6 +215,7 @@ def redrawWindow(win, game, p):
 btns = [Button("Paper", 450, 500, Color.white),
         Button("Rock", 50, 500, Color.white), 
         Button("Scissors", 250, 500, Color.white), ]
+btn_submit = Button('Sumbit', 50, 800, Color.red, Color.white, width=150, height=50)
 
 def main():
     global choose
@@ -282,13 +285,15 @@ def main():
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
-                for btn_id, btn in enumerate(btns):
-                    if btn.click(pos) and game.connected():
-                        choose = btn_id
+                if btn_submit.click(pos) and game.connected() and predict_sign != class_name[0]:
+                    choose = predict_sign
+                # for btn_id, btn in enumerate(btns):
+                #     if btn.click(pos) and game.connected():
+                #         choose = btn_id
 
         now = pygame.time.get_ticks()
         # print(now - start_time)
-        if now - start_time >= 20000 and game.connected():
+        if (now - start_time >= 20000 or choose != '') and game.connected():
             if choose == '':
                 choose = class_name[1]
             game = n.send(choose)
