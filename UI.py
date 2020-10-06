@@ -9,6 +9,7 @@ class Color:
     background = (30, 30, 30)
     black = (0, 0, 0)
     white = (255, 255, 255)
+    red = (255,0,0)
 class InputBox:
 
     def __init__(self, x, y, w, h, text=''):
@@ -52,18 +53,19 @@ class InputBox:
         pg.draw.rect(screen, self.color, self.rect, 2)
         
 class Button:
-    def __init__(self, text, x, y, color, width=150, height=100):
+    def __init__(self, text, x, y, color = Color.white, text_color = Color.black, width=150, height=100):
         self.text = text
         self.x = x
         self.y = y
         self.color = color
+        self.text_color = text_color
         self.width = width
         self.height = height
 
     def draw(self, win, fontSize = 40):
         pg.draw.rect(win, self.color, (self.x, self.y, self.width, self.height))
         font = pg.font.SysFont("comicsans", fontSize)
-        text = font.render(self.text, 1, (255,255,255))
+        text = font.render(self.text, 1, self.text_color)
         win.blit(text, (self.x + round(self.width/2) - round(text.get_width()/2), self.y + round(self.height/2) - round(text.get_height()/2)))
     
     def click(self, pos):

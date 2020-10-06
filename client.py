@@ -10,6 +10,7 @@ height = 700
 win = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Client")
 uname = ''
+choose = -1
 
 # topPlayer = []
 # # generate player
@@ -76,8 +77,8 @@ def drawWinLost(win, res, score):
     win.blit(text_Score, (round(0.5*width) - round(text_Score.get_width()/2), round(0.35*height)))
 
     # two button
-    buttonBXH = Button("Leader Board", round(0.25*width), round(0.65*height), (255,0,0), 150, 40)
-    buttonBack = Button("Play again", round(0.55*width), round(0.65*height), (255, 0, 0), 150, 40)
+    buttonBXH = Button("Leader Board", round(0.25*width), round(0.65*height), (255,0,0), Color.white, 150, 40)
+    buttonBack = Button("Play again", round(0.55*width), round(0.65*height), (255, 0, 0), Color.white, 150, 40)
     buttonBXH.draw(win, 30)
     buttonBack.draw(win, 30)
 
@@ -107,14 +108,18 @@ def redrawWindow(win, game, p):
         # print('Opponent score', (game.player2 if player.id == game.player1.id else game.player1).gamePoints)
         font = pygame.font.SysFont("comicsans", 60)
         p = game.player1 if player.id == game.player1.id else game.player2
+        text_title = font.render(str("You"), 1, (0, 255, 255))
         text_name = font.render(p.name, 1, (0, 255,255))
         text_score = font.render(str(p.gamePoints), 1, (0, 255, 255))
+        win.blit(text_title, (80, 150))
         win.blit(text_name, (80, 200))
         win.blit(text_score, (80, 250))
 
         opponent = game.player2 if game.player1.id == p.id else game.player1
+        text_title = font.render("Opponent", 1, (0, 255, 255))
         text_name = font.render(opponent.name, 1, (0, 255,255))
         text_score = font.render(str(opponent.gamePoints), 1, (0, 255, 255))
+        win.blit(text_title, (400, 150))
         win.blit(text_name, (400, 200))
         win.blit(text_score, (400, 250))
 
@@ -145,13 +150,21 @@ def redrawWindow(win, game, p):
             win.blit(text1, (100, 350))
             win.blit(text2, (400, 350))
 
-        for btn in btns:
+        for btn_id, btn in enumerate(btns):
+            if btn_id == choose:
+                btn.color = Color.red
             btn.draw(win)
+            btn.color = Color.white
 
     pygame.display.update()
 
-btns = [Button("Rock", 50, 500, (0,0,0)), Button("Scissors", 250, 500, (255,0,0)), Button("Paper", 450, 500, (0,255,0))]
+# btns = [Button("Rock", 50, 500, (0,0,0)), Button("Scissors", 250, 500, (255,0,0)), Button("Paper", 450, 500, (0,255,0))]
+btns = [Button("Rock", 50, 500, Color.white), 
+        Button("Scissors", 250, 500, Color.white), 
+        Button("Paper", 450, 500, Color.white)]
+
 def main():
+    global choose
     run = True
     clock = pygame.time.Clock()
     n = Network(uname)
@@ -160,13 +173,15 @@ def main():
     
     print("You are player", player)
     
+    start_time = pygame.time.get_ticks()
+
     while run:
         clock.tick(60)
         try:
             game = n.send("get")
-            print('Receive:', type(game))
+            # print('Receive:', type(game))
             if isinstance(game, str):
-                print('Update for new game')
+                # print('Update for new game')
                 break
         except:
             run = False
@@ -178,7 +193,7 @@ def main():
             pygame.time.delay(500)
             try:
                 game = n.send("reset")
-                print('Receive : ', type(game))
+                # print('Receive : ', type(game))
                 if isinstance(game, str):
                     print('Update for new game')
                     break
@@ -216,14 +231,24 @@ def main():
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
-                for btn in btns:
+                for btn_id, btn in enumerate(btns):
                     if btn.click(pos) and game.connected():
-                        if player.id == game.player1.id:
-                            if not game.player1.playerWent:
-                                game = n.send(btn.text)
-                        else:
-                            if not game.player2.playerWent:
-                                game = n.send(btn.text)
+                        choose = btn_id
+
+        now = pygame.time.get_ticks()
+        print(now - start_time)
+        if now - start_time >= 10000 and game.connected():
+            if choose == -1:
+                choose = 0
+            game = n.send(btns[choose].text)
+            choose = -1
+            start_time = pygame.time.get_ticks()
+            # if player.id == game.player1.id:
+            #     if not game.player1.playerWent:
+            #         game = n.send(btns[choose].text)
+            #     else:
+            #         if not game.player2.playerWent:
+            #             game = n.send(btns[choose].text)
 
         redrawWindow(win, game, player)
 
@@ -235,7 +260,7 @@ def menu_screen():
     text_title = font.render("Rock Paper Scissors Game", 1, (255,0,0))
     font = pygame.font.SysFont("comicsans", 30)
     text_enter = font.render("Enter your name:", 1, (255,255,255))
-    btn_join = Button("Play game", 150, 450, (255,0,0), 300, 80)
+    btn_join = Button("Play game", 150, 450, (255,0,0), Color.white, 300, 80)
     ib_name = InputBox(100, 350, 140, 32)
     while run:
         win.fill((30, 30, 30))
