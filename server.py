@@ -35,7 +35,7 @@ def start_game(conn, p, gameId):
     while True:
         try:
             data = conn.recv(4096).decode()
-            print('Get {} from {}'.format(data, p.name))
+            # print('Get {} from {}'.format(data, p.name))
             if gameId in games:
                 game = games[gameId]
 
@@ -50,10 +50,10 @@ def start_game(conn, p, gameId):
                     elif data != "get":
                         game.play(p, data)
 
-                    print('Send game to ', p.name)
+                    # print('Send game to ', p.name)
                     conn.sendall(str.encode('game', 'utf-8'))
                     conn.recv(4096).decode()
-                    print('Send Game Object to ', p.name)
+                    # print('Send Game Object to ', p.name)
                     conn.sendall(pickle.dumps(game))
             else:
                 break

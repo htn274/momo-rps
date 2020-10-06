@@ -3,14 +3,32 @@ import math
 from UI import Button, InputBox, Color
 from network import Network
 import pickle
+import cv2 
+import sys
+import argparse
+
+import tensorflow as tf
+from keras.preprocessing import image
+import tensorflow.keras as k
+import numpy as np
+
 pygame.font.init()
 
-width = 700
-height = 700
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--camera', const=None, type=str,
+                    help='Ip of camera')
+
+camera = None
+width = 750
+height = 750
 win = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Client")
+screen = pygame.Surface((300, 300))
 uname = ''
-choose = -1
+choose = ''
+model = tf.keras.models.load_model('Model_4_classes.h5')
+class_name = ['Nothing', 'Paper', 'Rock', 'Scissors']
 
 # topPlayer = []
 # # generate player
@@ -64,6 +82,7 @@ def drawLeaderBoard(win, topPlayer):
                 elif buttonBack.click(event.pos) == True:
                     continue
 
+
 def drawWinLost(win, res, score):
     win.fill((30, 30, 30))
     #You won
@@ -95,7 +114,20 @@ def drawWinLost(win, res, score):
             elif buttonBack.click(event.pos) == True:
                 pass
 
+def predict(raw_img):
+    img = cv2.resize(raw_img, (150, 150), interpolation=cv2.INTER_AREA)
+    img = img/255
+    x = image.img_to_array(img)
+    x = np.expand_dims(x, axis=0)
+    x = np.vstack([x])
+    images = np.vstack([x])
+    classes = model.predict(images, batch_size=10)
+    classes = np.reshape(classes, (4, ))
+    idx = np.argmax(classes)
+    return class_name[idx]
+
 def redrawWindow(win, game, p):
+    global screen, choose
     win.fill((30,30,30))
 
     if not(game.connected()):
@@ -150,18 +182,37 @@ def redrawWindow(win, game, p):
             win.blit(text1, (100, 350))
             win.blit(text2, (400, 350))
 
-        for btn_id, btn in enumerate(btns):
-            if btn_id == choose:
-                btn.color = Color.red
-            btn.draw(win)
-            btn.color = Color.white
+        # for btn_id, btn in enumerate(btns):
+        #     if btn_id == choose:
+        #         btn.color = Color.red
+        #     btn.draw(win)
+        #     btn.color = Color.white
+
+        ret, frame = camera.read()
+        screen.fill(Color.white)
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        frame = cv2.resize(frame, (300, 300), interpolation=cv2.INTER_AREA)
+        frame = cv2.flip(frame, 1)
+        # frame = frame.swapaxes(0, 1)
+        choose = predict(frame)
+        # print('Frame: ', type(frame), frame.dtype)
+        print('Choose: ', choose)
+        img = cv2.UMat(frame)
+        cv2.putText(img, choose, (10, 30),
+                    cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
+        img = cv2.UMat.get(img)
+        img = img.swapaxes(0, 1)
+        pygame.surfarray.blit_array(screen, img)
+        win.blit(screen, (50, 400))
+        # pygame.surfarray.blit_array(screen, frame)
+        pygame.display.flip()
 
     pygame.display.update()
 
 # btns = [Button("Rock", 50, 500, (0,0,0)), Button("Scissors", 250, 500, (255,0,0)), Button("Paper", 450, 500, (0,255,0))]
-btns = [Button("Rock", 50, 500, Color.white), 
-        Button("Scissors", 250, 500, Color.white), 
-        Button("Paper", 450, 500, Color.white)]
+btns = [Button("Paper", 450, 500, Color.white),
+        Button("Rock", 50, 500, Color.white), 
+        Button("Scissors", 250, 500, Color.white), ]
 
 def main():
     global choose
@@ -187,7 +238,7 @@ def main():
             run = False
             print("Couldn't get game")
             break
-        
+    
         if game.bothWent():
             # redrawWindow(win, game, player)
             pygame.time.delay(500)
@@ -236,12 +287,12 @@ def main():
                         choose = btn_id
 
         now = pygame.time.get_ticks()
-        print(now - start_time)
-        if now - start_time >= 10000 and game.connected():
-            if choose == -1:
-                choose = 0
-            game = n.send(btns[choose].text)
-            choose = -1
+        # print(now - start_time)
+        if now - start_time >= 20000 and game.connected():
+            if choose == '':
+                choose = class_name[1]
+            game = n.send(choose)
+            choose = ''
             start_time = pygame.time.get_ticks()
             # if player.id == game.player1.id:
             #     if not game.player1.playerWent:
@@ -285,6 +336,34 @@ def menu_screen():
     uname = ib_name.text
     main()
 
-while True:
-    # drawWinLost(win, "lost", 0)
-    menu_screen()
+def test_camera():
+    win.fill(Color.background)
+    screen = pygame.Surface((300, 300))
+    try:
+        while True:
+
+            ret, frame = camera.read()
+
+            screen.fill(Color.white)
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            frame = cv2.resize(frame, (300, 300), interpolation=cv2.INTER_AREA)
+            frame = frame.swapaxes(0, 1)
+            pygame.surfarray.blit_array(screen, frame)
+            win.blit(screen, (100, 100))
+            # pygame.surfarray.blit_array(screen, frame)
+            pygame.display.flip()
+
+    except (KeyboardInterrupt, SystemExit):
+        pygame.quit()
+        cv2.destroyAllWindows()
+
+if __name__ == '__main__':
+    url = parser.parse_args().camera
+    if url == None:
+        camera = cv2.VideoCapture(0)
+    else:
+        camera = cv2.VideoCapture(url + '/video')
+    while True:
+        # drawWinLost(win, "lost", 0)
+        menu_screen()
+        # test_camera()
