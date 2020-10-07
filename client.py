@@ -21,7 +21,7 @@ parser.add_argument('--camera', const=None, type=str,
 
 camera = None
 width = 750
-height = 1000
+height = 900
 win = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Client")
 screen = pygame.Surface((300, 300))
@@ -216,8 +216,8 @@ def redrawWindow(win, game, p):
         pygame.surfarray.blit_array(screen, img)
         win.blit(screen, (50, 400))
         # pygame.surfarray.blit_array(screen, frame)
-        if choose == '':
-            btn_submit.draw(win)
+        # if choose == '':
+        #     btn_submit.draw(win)
         pygame.display.flip()
 
     pygame.display.update()
@@ -304,7 +304,9 @@ def main():
 
         now = pygame.time.get_ticks()
         # print(now - start_time)
-        if (now - start_time >= 20000 or choose != '') and game.connected():
+        if now - start_time >= 10000 and predict_sign != 'Nothing':
+            choose = predict_sign
+        if (now - start_time >= 30000 or choose != '') and game.connected():
             if choose == '':
                 choose = class_name[1]
             game = n.send(choose)
