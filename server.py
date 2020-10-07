@@ -41,7 +41,11 @@ def start_game(conn, p, gameId):
 
                 if not data or data == 'finish':
                     conn.sendall(str.encode('abc'))
-                    break
+                    count_lock.acquire()
+                    count += 1
+                    if count == 2:
+                        break
+                    count_lock.release()
                 else:
                     if data == "reset":
                         game.resetWent()

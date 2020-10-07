@@ -31,10 +31,10 @@ predict_sign = ''
 model = tf.keras.models.load_model('Model_4_classes.h5')
 class_name = ['Nothing', 'Paper', 'Rock', 'Scissors']
 
-# topPlayer = []
-# # generate player
-# for i in range(55):
-#     topPlayer.append(['Player' + str(i), str(i)])
+topPlayer = []
+# generate player
+for i in range(55):
+    topPlayer.append(['Player' + str(i), str(60-3*(i//3))])
 
 def draw10PlayerBoard(win, scoreBoard):
     for i in range(len(scoreBoard)):
@@ -42,12 +42,15 @@ def draw10PlayerBoard(win, scoreBoard):
         text_name = font.render(scoreBoard[i][0], 1, (255,255,255))
         font = pygame.font.SysFont("comicsans", 30)
         text_score = font.render(scoreBoard[i][1], 1, (255,255,255))
-        win.blit(text_name, (round(0.4*width), round(0.2*height) + (30*i)))
-        win.blit(text_score, (round(0.4*width)+100, round(0.2*height) + (30*i)))
+        text_rank  = font.render(str(i + 1), 1, (255,255,255))
+        win.blit(text_rank, (round(0.3*width), round(0.3*height) + (30*i)))
+        win.blit(text_name, (round(0.3*width) + 100, round(0.3*height) + (30*i)))
+        win.blit(text_score, (round(0.3*width)+200, round(0.3*height) + (30*i)))
         pygame.display.update()
         
 def drawLeaderBoard(win, topPlayer):
     # Rangkings Chart
+    win.fill(Color.background)
     run = True
     clock = pygame.time.Clock()
     numPage = math.ceil(len(topPlayer)/10)
@@ -56,15 +59,23 @@ def drawLeaderBoard(win, topPlayer):
 
     while run:
         font = pygame.font.SysFont("comicsans", 40)
-        text_BXH = font.render("LEADER BOARD", 1, (255, 255, 255))
+        text_BXH = font.render("LEADERBOARD", 1, (255, 255, 255))
         win.blit(text_BXH, (round(0.35*width), round(0.1*height)))
 
-        buttonBefore = Button("<<<", round(0.35*width), round(0.65*height), (255,0,0), 50, 30)
-        buttonAfter = Button(">>>", round(0.45*width), round(0.65*height), (255, 0, 0), 50, 30)
-        buttonBack = Button("Back", round(0.55*width), round(0.65*height), (255, 0, 0), 60, 30)
+        buttonBefore = Button("<<<", round(0.35*width), round(0.65*height), color=(255,0,0), width=50, height=30)
+        buttonAfter = Button(">>>", round(0.45*width), round(0.65*height), color=(255, 0, 0), width=50, height=30)
+        buttonBack = Button("Back", round(0.55*width), round(0.65*height), color=(255, 0, 0), width=60, height=30)
         buttonBefore.draw(win, 30)
         buttonAfter.draw(win, 30)
         buttonBack.draw(win, 30)
+
+        text_ranking = font.render("Rank", 1, (255, 255, 255))
+        win.blit(text_ranking, (round(0.3*width), round(0.2*height)))
+        text_name = font.render("Name", 1, (255, 255, 255))
+        win.blit(text_name, ((round(0.3*width) + 100), round(0.2*height)))
+        text_score = font.render("Score", 1, (255, 255, 255))
+        win.blit(text_score, ((round(0.3*width) + 200), round(0.2*height)))
+
         draw10PlayerBoard(win, topPlayer[page*10: (page+1)*10])   
         pygame.display.update()
         pygame.display.flip()
@@ -215,7 +226,7 @@ def redrawWindow(win, game, p):
 btns = [Button("Paper", 450, 500, Color.white),
         Button("Rock", 50, 500, Color.white), 
         Button("Scissors", 250, 500, Color.white), ]
-btn_submit = Button('Sumbit', 50, 800, Color.red, Color.white, width=150, height=50)
+btn_submit = Button('Submit', 50, 800, Color.red, Color.white, width=150, height=50)
 
 def main():
     global choose
@@ -273,7 +284,7 @@ def main():
         if game.finished():
             res, score = game.get_result(player).split()
             print('Ecec, you', res, score)
-            # n.send('finish')
+            n.send('finish')
             while True:
                 drawWinLost(win, res, score)
             break
@@ -318,6 +329,7 @@ def menu_screen():
     text_enter = font.render("Enter your name:", 1, (255,255,255))
     btn_join = Button("Play game", 150, 450, (255,0,0), Color.white, 300, 80)
     ib_name = InputBox(100, 350, 140, 32)
+
     while run:
         win.fill((30, 30, 30))
         win.blit(text_title, (80,200))

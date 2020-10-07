@@ -1,5 +1,4 @@
 from player import Player
-
 class Game:
     def __init__(self, id, player1, player2 = None):
         self.player1 = player1
